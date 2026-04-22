@@ -1,6 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Оценка онднакласников</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #b026ff;
+    text-align: center;
+    background: black;
+    overflow-x: hidden;
+}
+
+/* НЕОНОВАЯ СЕТКА */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+        linear-gradient(#b026ff22 1px, transparent 1px),
+        linear-gradient(90deg, #b026ff22 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: perspective(800px) rotateX(60deg);
+    animation: moveGrid 10s linear infinite;
+}
+
+@keyframes moveGrid {
+    0% {
+        transform: perspective(800px) rotateX(60deg) translateY(0);
+    }
+    100% {
+        transform: perspective(800px) rotateX(60deg) translateY(40px);
+    }
+}
+
+/* КОНТЕЙНЕР */
+.container {
+    background: rgba(0,0,0,0.85);
+    border: 1px solid #b026ff;
+    box-shadow: 0 0 15px #b026ff;
+    padding: 20px;
+    margin: 40px auto;
+    width: 420px;
+    border-radius: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+/* НЕОНОВЫЙ ТЕКСТ */
+h2, h3 {
+    text-shadow: 0 0 10px #b026ff;
+}
+
+/* INPUT */
+input, textarea {
+    background: black;
+    border: 1px solid #b026ff;
+    color: #b026ff;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+/* КНОПКИ */
+button {
+    background: transparent;
+    border: 1px solid #b026ff;
+    color: #b026ff;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #b026ff;
+}
+
+button:hover {
+    background: #b026ff;
+    color: black;
+}
+
+/* СКРЫТЫЕ */
+.hidden {
+    display: none;
+}
+</style>
+
+</head>
 <body>
-<h1>Мой сайт работает!</h1>
+
+<div class="container" id="login">
+    <h2>Введите имя</h2>
+    <input type="text" id="name" placeholder="Ваше имя"><br><br>
+    <button onclick="start()">Начать</button>
+    <br><br>
+    <button onclick="adminLogin()">Зайти как админ</button>
+</div>
+
+<div class="container hidden" id="quiz"></div>
+
+<div class="container hidden" id="adminPanel">
+    <h2>Админ панель</h2>
+    <div id="results"></div>
+    <h3>Редактировать список</h3>
+    <textarea id="editList" rows="10" cols="40"></textarea><br>
+    <button onclick="saveList()">Сохранить список</button>
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("products")) || [
+"Мирослав","Ассовская","Грико","Гуща","Никола","Аня Д.","Артём",
+"Гриша","Серёжа","Максим","Иванова","Илья","Мирон","Косачёв",
+"Миша","Лебедев","Алекс","Мирошников","Аня М.","Андрей",
+"Полина","Лёша","Ира","Кира","Хмелёв","Саша","Щербаков"
+];
+
+let answers = {};
+let currentUser = "";
+
+function start() {
+    const name = document.getElementById("name").value;
+    if (!name) return alert("Введите имя");
+    currentUser = name;
+    document.getElementById("login").classList.add("hidden");
+    showQuiz();
+}
+
+function showQuiz() {
+    const quiz = document.getElementById("quiz");
+    quiz.innerHTML = "<h2>Оцените однакласников</h2>";
+
+    products.forEach((p, i) => {
+        quiz.innerHTML += `
+        <div>
+            ${p}:
+            <input type="number" min="0" max="10" onchange="saveAnswer(${i}, this.value)">
+        </div>`;
+    });
+
+    quiz.innerHTML += `<br><button onclick="submit()">Сохранить</button>`;
+    quiz.classList.remove("hidden");
+}
+
+function saveAnswer(i, val) {
+    answers[products[i]] = val;
+}
+
+function submit() {
+    let all = JSON.parse(localStorage.getItem("results")) || [];
+    all.push({name: currentUser, answers});
+    localStorage.setItem("results", JSON.stringify(all));
+    alert("Сохранено!");
+    location.reload();
+}
+
+function adminLogin() {
+    let code = prompt("Введите код:");
+    if (code === "5267") {
+        document.getElementById("login").classList.add("hidden");
+        showAdmin();
+    } else {
+        alert("Неверный код");
+    }
+}
+
+function showAdmin() {
+    const panel = document.getElementById("adminPanel");
+    const resultsDiv = document.getElementById("results");
+
+    let data = JSON.parse(localStorage.getItem("results")) || [];
+
+    resultsDiv.innerHTML = "<h3>Результаты:</h3>";
+
+    data.forEach((user, index) => {
+        resultsDiv.innerHTML += `<div><b>${user.name}</b><br>`;
+        for (let key in user.answers) {
+            resultsDiv.innerHTML += `${key}: ${user.answers[key]}<br>`;
+        }
+        resultsDiv.innerHTML += `<button onclick="deleteUser(${index})">Удалить</button><hr></div>`;
+    });
+
+    document.getElementById("editList").value = products.join("\n");
+    panel.classList.remove("hidden");
+}
+
+function deleteUser(i) {
+    let data = JSON.parse(localStorage.getItem("results"));
+    data.splice(i,1);
+    localStorage.setItem("results", JSON.stringify(data));
+    showAdmin();
+}
+
+function saveList() {
+    let newList = document.getElementById("editList").value.split("\n");
+    products = newList;
+    localStorage.setItem("products", JSON.stringify(products));
+    alert("Список обновлён!");
+}
+</script>
+
 </body>
 </html>
