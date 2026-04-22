@@ -151,7 +151,7 @@ function openTom() {
 /* ТОМ */
 function talkRandom() {
     const phrases = [
-        "аххххх",
+        "у тебя пизда воняет!",
         "у тебя попа воняет!",
         "фуууууу",
         "чмок",
@@ -161,7 +161,7 @@ function talkRandom() {
     let random = phrases[Math.floor(Math.random() * phrases.length)];
 
     let msg = new SpeechSynthesisUtterance(random);
-    msg.pitch = 1.8;
+    msg.pitch = 1.6;
     msg.rate = 1.2;
 
     speechSynthesis.speak(msg);
