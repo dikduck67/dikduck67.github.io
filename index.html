@@ -5,7 +5,6 @@
 <title>1543 Math Class</title>
 <meta name="description" content="7В тест">
 <title>Оценка онднакласников</title>
-
 <style>
 body {
     margin: 0;
@@ -33,15 +32,10 @@ body::before {
 }
 
 @keyframes moveGrid {
-    0% {
-        transform: perspective(800px) rotateX(60deg) translateY(0);
-    }
-    100% {
-        transform: perspective(800px) rotateX(60deg) translateY(40px);
-    }
+    0% { transform: perspective(800px) rotateX(60deg) translateY(0); }
+    100% { transform: perspective(800px) rotateX(60deg) translateY(40px); }
 }
 
-/* КОНТЕЙНЕР */
 .container {
     background: rgba(0,0,0,0.85);
     border: 1px solid #b026ff;
@@ -54,12 +48,10 @@ body::before {
     z-index: 2;
 }
 
-/* НЕОНОВЫЙ ТЕКСТ */
 h2, h3 {
     text-shadow: 0 0 10px #b026ff;
 }
 
-/* INPUT */
 input, textarea {
     background: black;
     border: 1px solid #b026ff;
@@ -68,7 +60,6 @@ input, textarea {
     border-radius: 5px;
 }
 
-/* КНОПКИ */
 button {
     background: transparent;
     border: 1px solid #b026ff;
@@ -84,7 +75,6 @@ button:hover {
     color: black;
 }
 
-/* СКРЫТЫЕ */
 .hidden {
     display: none;
 }
@@ -93,22 +83,39 @@ button:hover {
 </head>
 <body>
 
+<!-- ГЛАВНАЯ -->
 <div class="container" id="login">
     <h2>Введите имя</h2>
     <input type="text" id="name" placeholder="Ваше имя"><br><br>
     <button onclick="start()">Начать</button>
     <br><br>
     <button onclick="adminLogin()">Зайти как админ</button>
+    <br><br>
+    <button onclick="openTom()">🐱 Говорящий Том</button>
 </div>
 
+<!-- КВИЗ -->
 <div class="container hidden" id="quiz"></div>
 
+<!-- АДМИН -->
 <div class="container hidden" id="adminPanel">
     <h2>Админ панель</h2>
     <div id="results"></div>
     <h3>Редактировать список</h3>
     <textarea id="editList" rows="10" cols="40"></textarea><br>
     <button onclick="saveList()">Сохранить список</button>
+</div>
+
+<!-- ГОВОРЯЩИЙ ТОМ -->
+<div class="container hidden" id="tom">
+    <h2>🐱 Говорящий Том</h2>
+
+    <p style="font-size: 60px; cursor: pointer;" onclick="meow()">😺</p>
+
+    <input type="text" id="tomText" placeholder="Напиши что-нибудь"><br><br>
+    <button onclick="talk()">Сказать</button>
+    <br><br>
+    <button onclick="back()">⬅ Назад</button>
 </div>
 
 <script>
@@ -122,11 +129,45 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let answers = {};
 let currentUser = "";
 
+/* НАВИГАЦИЯ */
+function hideAll() {
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("adminPanel").classList.add("hidden");
+    document.getElementById("tom").classList.add("hidden");
+}
+
+function back() {
+    hideAll();
+    document.getElementById("login").classList.remove("hidden");
+}
+
+function openTom() {
+    hideAll();
+    document.getElementById("tom").classList.remove("hidden");
+}
+
+/* ТОМ */
+function talk() {
+    let text = document.getElementById("tomText").value;
+    let msg = new SpeechSynthesisUtterance(text);
+    msg.pitch = 1.8; // голос как у тома
+    msg.rate = 1.2;
+    speechSynthesis.speak(msg);
+}
+
+function meow() {
+    let msg = new SpeechSynthesisUtterance("мяу");
+    msg.pitch = 2;
+    speechSynthesis.speak(msg);
+}
+
+/* КВИЗ */
 function start() {
     const name = document.getElementById("name").value;
     if (!name) return alert("Введите имя");
     currentUser = name;
-    document.getElementById("login").classList.add("hidden");
+    hideAll();
     showQuiz();
 }
 
@@ -143,6 +184,7 @@ function showQuiz() {
     });
 
     quiz.innerHTML += `<br><button onclick="submit()">Сохранить</button>`;
+    quiz.innerHTML += `<br><br><button onclick="back()">Назад</button>`;
     quiz.classList.remove("hidden");
 }
 
@@ -158,10 +200,11 @@ function submit() {
     location.reload();
 }
 
+/* АДМИН */
 function adminLogin() {
     let code = prompt("Введите код:");
     if (code === "5267") {
-        document.getElementById("login").classList.add("hidden");
+        hideAll();
         showAdmin();
     } else {
         alert("Неверный код");
