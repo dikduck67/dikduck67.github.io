@@ -91,7 +91,7 @@ button:hover {
     <br><br>
     <button onclick="adminLogin()">Зайти как админ</button>
     <br><br>
-    <button onclick="openTom()">🐱 Говорящий Том</button>
+    <button onclick="openTom()">🐱 Говорящий Янданов</button>
 </div>
 
 <!-- КВИЗ -->
@@ -107,14 +107,14 @@ button:hover {
 </div>
 
 <!-- ГОВОРЯЩИЙ ТОМ -->
+<!-- ГОВОРЯЩИЙ ТОМ -->
 <div class="container hidden" id="tom">
-    <h2>🐱 Говорящий Том</h2>
+    <h2>🐱 Говорящий Янданов</h2>
 
-    <p style="font-size: 60px; cursor: pointer;" onclick="meow()">😺</p>
+    <p style="font-size: 60px; cursor: pointer;" onclick="talkRandom()">😺</p>
 
-    <input type="text" id="tomText" placeholder="Напиши что-нибудь"><br><br>
-    <button onclick="talk()">Сказать</button>
-    <br><br>
+    <p>Нажми на Янданова</p>
+
     <button onclick="back()">⬅ Назад</button>
 </div>
 
@@ -148,11 +148,22 @@ function openTom() {
 }
 
 /* ТОМ */
-function talk() {
-    let text = document.getElementById("tomText").value;
-    let msg = new SpeechSynthesisUtterance(text);
-    msg.pitch = 1.8; // голос как у тома
+/* ТОМ */
+function talkRandom() {
+    const phrases = [
+        "аххххх",
+        "у тебя попа воняет!",
+        "фуууууу",
+        "чмок",
+        "Лебедев"
+    ];
+
+    let random = phrases[Math.floor(Math.random() * phrases.length)];
+
+    let msg = new SpeechSynthesisUtterance(random);
+    msg.pitch = 1.8;
     msg.rate = 1.2;
+
     speechSynthesis.speak(msg);
 }
 
