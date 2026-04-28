@@ -204,17 +204,18 @@ function saveAnswer(i, val) {
 }
 
 function submit() {
+    function submit() {
     if (!currentUser) return alert("Введите имя");
+    if (!window.db) return alert("Firebase не загрузился");
 
     push(ref(db, "results"), {
         name: currentUser,
         answers: answers
     });
 
-    alert("Сохранено на сервер!");
-    location.reload();
+    alert("Сохранено!");
 }
-}
+
 
 /* АДМИН */
 function adminLogin() {
@@ -270,10 +271,10 @@ import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/fi
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "ТВОЙ_API_KEY",
-  authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
-  databaseURL: "ТВОЙ_DATABASE_URL",
-  projectId: "ТВОЙ_PROJECT",
+    apiKey: "AIzaSyBcbMg9i3KZfWzNUBe5DHwR4lCH4ySC9q8",
+    authDomain: "math-site-36482.firebaseapp.com",
+    databaseURL: "https://math-site-36482-default-rtdb.firebaseio.com",
+    projectId: "math-site-36482",
 };
 
 const app = initializeApp(firebaseConfig);
