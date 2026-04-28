@@ -204,11 +204,16 @@ function saveAnswer(i, val) {
 }
 
 function submit() {
-    let all = JSON.parse(localStorage.getItem("results")) || [];
-    all.push({name: currentUser, answers});
-    localStorage.setItem("results", JSON.stringify(all));
-    alert("Сохранено!");
+    if (!currentUser) return alert("Введите имя");
+
+    push(ref(db, "results"), {
+        name: currentUser,
+        answers: answers
+    });
+
+    alert("Сохранено на сервер!");
     location.reload();
+}
 }
 
 /* АДМИН */
@@ -226,19 +231,22 @@ function showAdmin() {
     const panel = document.getElementById("adminPanel");
     const resultsDiv = document.getElementById("results");
 
-    let data = JSON.parse(localStorage.getItem("results")) || [];
-
     resultsDiv.innerHTML = "<h3>Результаты:</h3>";
 
-    data.forEach((user, index) => {
-        resultsDiv.innerHTML += `<div><b>${user.name}</b><br>`;
-        for (let key in user.answers) {
-            resultsDiv.innerHTML += `${key}: ${user.answers[key]}<br>`;
-        }
-        resultsDiv.innerHTML += `<button onclick="deleteUser(${index})">Удалить</button><hr></div>`;
+    onValue(ref(db, "results"), (snapshot) => {
+        resultsDiv.innerHTML = "<h3>Результаты:</h3>";
+
+        snapshot.forEach((child) => {
+            const user = child.val();
+
+            resultsDiv.innerHTML += `<div><b>${user.name}</b><br>`;
+            for (let key in user.answers) {
+                resultsDiv.innerHTML += `${key}: ${user.answers[key]}<br>`;
+            }
+            resultsDiv.innerHTML += `<hr></div>`;
+        });
     });
 
-    document.getElementById("editList").value = products.join("\n");
     panel.classList.remove("hidden");
 }
 
@@ -256,6 +264,30 @@ function saveList() {
     alert("Список обновлён!");
 }
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+const firebaseConfig = {
+  apiKey: "ТВОЙ_API_KEY",
+  authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
+  databaseURL: "ТВОЙ_DATABASE_URL",
+  projectId: "ТВОЙ_PROJECT",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// авто-вход (простая регистрация)
+signInAnonymously(auth);
+
+// делаем доступ глобальным
+window.db = db;
+window.ref = ref;
+window.push = push;
+window.set = set;
+</script>
 </body>
 </html>
