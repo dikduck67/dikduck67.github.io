@@ -229,13 +229,21 @@ function save(i, val) {
     answers[students[i]] = val;
 }
 
-function submit() {
+ffunction submit() {
+    if (!window.db) return alert("Firebase не подключен");
+
     push(ref(window.db, "results"), {
         user: currentUser,
         answers: answers
     });
 
     alert("Отправлено!");
+
+    // очистка ответов
+    answers = {};
+
+    // возврат в меню
+    show("menu");
 }
 </script>
 
