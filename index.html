@@ -59,7 +59,7 @@ button {
 <div id="quiz" class="container hidden"></div>
 
 <script>
-let db, auth;
+
 let currentUser = "";
 let answers = {};
 
@@ -81,7 +81,7 @@ function register() {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
-    createUserWithEmailAndPassword(auth, email, pass)
+    createUserWithEmailAndPassword(window.auth, email, pass)
     .then(() => {
         alert("Аккаунт создан!");
         currentUser = email;
@@ -94,7 +94,7 @@ function login() {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
-    signInWithEmailAndPassword(auth, email, pass)
+    createUserWithEmailAndPassword(window.auth, email, pass)
     .then(() => {
         alert("Вход выполнен!");
         currentUser = email;
