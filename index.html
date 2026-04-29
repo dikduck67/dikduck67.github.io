@@ -78,12 +78,13 @@ function show(id) {
 /* ===== РЕГИСТРАЦИЯ ===== */
 
 function register() {
-    if (!window.db) {
-    alert("Firebase не загрузился");
-    return;
-    }
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
+
+    if (pass.length < 6) {
+        alert("Пароль должен быть минимум 6 символов");
+        return;
+    }
 
     createUserWithEmailAndPassword(window.auth, email, pass)
     .then(() => {
