@@ -97,8 +97,11 @@ function register() {
 function login() {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
-
-    createUserWithEmailAndPassword(window.auth, email, pass)
+    if (!window.auth) {
+    alert("Firebase не загрузился");
+    return;
+    }
+    signInWithEmailAndPassword(window.auth, email, pass)
     .then(() => {
         alert("Вход выполнен!");
         currentUser = email;
@@ -106,7 +109,6 @@ function login() {
     })
     .catch(e => alert(e.message));
 }
-
 /* ===== КВИЗ ===== */
 
 function startQuiz() {
@@ -137,7 +139,7 @@ function submit() {
     }
     if (!currentUser) return alert("Сначала войдите!");
 
-    push(ref(db, "results"), {
+    push(ref(window.db, "results"), {
         user: currentUser,
         answers: answers
     });
