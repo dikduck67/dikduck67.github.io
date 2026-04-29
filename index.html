@@ -2,271 +2,153 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>1543 Math Class</title>
-<meta name="description" content="7В тест">
-<title>Оценка онднакласников</title>
+<title>Оценка одноклассников</title>
+
 <style>
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: #b026ff;
+    font-family: Arial;
+    background: #67d6c4;
     text-align: center;
-    background: black;
-    overflow-x: hidden;
-}
-
-/* НЕОНОВАЯ СЕТКА */
-body::before {
-    content: "";
-    position: fixed;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    background:
-        linear-gradient(#b026ff22 1px, transparent 1px),
-        linear-gradient(90deg, #b026ff22 1px, transparent 1px);
-    background-size: 40px 40px;
-    transform: perspective(800px) rotateX(60deg);
-    animation: moveGrid 10s linear infinite;
-}
-
-@keyframes moveGrid {
-    0% { transform: perspective(800px) rotateX(60deg) translateY(0); }
-    100% { transform: perspective(800px) rotateX(60deg) translateY(40px); }
 }
 
 .container {
-    background: rgba(0,0,0,0.85);
-    border: 1px solid #b026ff;
-    box-shadow: 0 0 15px #b026ff;
-    padding: 20px;
-    margin: 40px auto;
-    width: 420px;
-    border-radius: 12px;
-    position: relative;
-    z-index: 2;
+    margin-top: 50px;
 }
 
-h2, h3 {
-    text-shadow: 0 0 10px #b026ff;
-}
-
-input, textarea {
-    background: black;
-    border: 1px solid #b026ff;
-    color: #b026ff;
-    padding: 5px;
-    border-radius: 5px;
+input {
+    padding: 10px;
+    margin: 10px;
+    border: 2px solid black;
 }
 
 button {
-    background: transparent;
-    border: 1px solid #b026ff;
-    color: #b026ff;
-    padding: 8px 15px;
+    padding: 15px 30px;
+    font-size: 18px;
+    background: #3e9c72;
+    border: none;
     cursor: pointer;
-    border-radius: 6px;
-    box-shadow: 0 0 10px #b026ff;
-}
-
-button:hover {
-    background: #b026ff;
-    color: black;
 }
 
 .hidden {
     display: none;
 }
 </style>
-
 </head>
 <body>
 
-<!-- ГЛАВНАЯ -->
-<div class="container" id="login">
-    <h2>Введите имя</h2>
-    <input type="text" id="name" placeholder="Ваше имя"><br><br>
-    <button onclick="start()">Начать</button>
-    <br><br>
-    <button onclick="adminLogin()">Зайти как админ</button>
-    <br><br>
-    <button onclick="openTom()">🐱 Говорящий Янданов</button>
+<!-- РЕГИСТРАЦИЯ -->
+<div id="auth" class="container">
+    <h1>РЕГИСТРАЦИЯ</h1>
+
+    <input id="email" placeholder="Почта"><br>
+    <input id="password" type="password" placeholder="Пароль"><br>
+
+    <button onclick="register()">Создать аккаунт</button><br><br>
+    <button onclick="login()">Войти</button>
+</div>
+
+<!-- МЕНЮ -->
+<div id="menu" class="container hidden">
+    <h1>ОЦЕНКА ОДНОКЛАССНИКОВ</h1>
+
+    <button onclick="startQuiz()">Оценить одноклассников</button><br><br>
+    <button onclick="openChat()">Чат</button>
 </div>
 
 <!-- КВИЗ -->
-<div class="container hidden" id="quiz"></div>
-
-<!-- АДМИН -->
-<div class="container hidden" id="adminPanel">
-    <h2>Админ панель</h2>
-    <div id="results"></div>
-    <h3>Редактировать список</h3>
-    <textarea id="editList" rows="10" cols="40"></textarea><br>
-    <button onclick="saveList()">Сохранить список</button>
-</div>
-
-<!-- ГОВОРЯЩИЙ ТОМ -->
-<!-- ГОВОРЯЩИЙ ТОМ -->
-<div class="container hidden" id="tom">
-    <h2>🐱 Говорящий Янданов</h2>
-
-    <p style="font-size: 60px; cursor: pointer;" onclick="talkRandom()">😺</p>
-
-    <p>Нажми на Янданова</p>
-
-    <button onclick="back()">⬅ Назад</button>
-</div>
+<div id="quiz" class="container hidden"></div>
 
 <script>
-let products = JSON.parse(localStorage.getItem("products")) || [
-"Мирослав","Ассовская","Грико","Гуща","Никола","Аня Д.","Артём",
-"Гриша","Серёжа","Максим","Иванова","Илья","Мирон","Косачёв",
-"Миша","Лебедев","Алекс","Мирошников","Аня М.","Андрей",
-"Полина","Лёша","Ира","Кира","Хмелёв","Саша","Щербаков"
+let db, auth;
+let currentUser = "";
+let answers = {};
+
+let students = [
+"Мирослав","Ассовская","Грико","Гуща","Никола","Аня Д.","Артём"
 ];
 
-let answers = {};
-let currentUser = "";
-
-/* НАВИГАЦИЯ */
-function hideAll() {
-    document.getElementById("login").classList.add("hidden");
+function show(id) {
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("menu").classList.add("hidden");
     document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("adminPanel").classList.add("hidden");
-    document.getElementById("tom").classList.add("hidden");
+
+    document.getElementById(id).classList.remove("hidden");
 }
 
-function back() {
-    hideAll();
-    document.getElementById("login").classList.remove("hidden");
+/* ===== РЕГИСТРАЦИЯ ===== */
+
+function register() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    createUserWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+        alert("Аккаунт создан!");
+        currentUser = email;
+        show("menu");
+    })
+    .catch(e => alert(e.message));
 }
 
-function openTom() {
-    hideAll();
-    document.getElementById("tom").classList.remove("hidden");
+function login() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+        alert("Вход выполнен!");
+        currentUser = email;
+        show("menu");
+    })
+    .catch(e => alert(e.message));
 }
 
-/* ТОМ */
-/* ТОМ */
-function talkRandom() {
-    const phrases = [
-        "у тебя пизда воняет!",
-        "у тебя попа воняет!",
-        "фуууууу",
-        "чмок",
-        "Лебедев"
-    ];
+/* ===== КВИЗ ===== */
 
-    let random = phrases[Math.floor(Math.random() * phrases.length)];
+function startQuiz() {
+    const div = document.getElementById("quiz");
+    div.innerHTML = "<h2>Оцените одноклассников</h2>";
 
-    let msg = new SpeechSynthesisUtterance(random);
-    msg.pitch = 1.6;
-    msg.rate = 1.2;
-
-    speechSynthesis.speak(msg);
-}
-
-function meow() {
-    let msg = new SpeechSynthesisUtterance("мяу");
-    msg.pitch = 2;
-    speechSynthesis.speak(msg);
-}
-
-/* КВИЗ */
-function start() {
-    const name = document.getElementById("name").value;
-    if (!name) return alert("Введите имя");
-    currentUser = name;
-    hideAll();
-    showQuiz();
-}
-
-function showQuiz() {
-    const quiz = document.getElementById("quiz");
-    quiz.innerHTML = "<h2>Оцените однакласников</h2>";
-
-    products.forEach((p, i) => {
-        quiz.innerHTML += `
+    students.forEach((s, i) => {
+        div.innerHTML += `
         <div>
-            ${p}:
-            <input type="number" min="0" max="10" onchange="saveAnswer(${i}, this.value)">
+            ${s}: 
+            <input type="number" min="0" max="10" onchange="save(${i}, this.value)">
         </div>`;
     });
 
-    quiz.innerHTML += `<br><button onclick="submit()">Сохранить</button>`;
-    quiz.innerHTML += `<br><br><button onclick="back()">Назад</button>`;
-    quiz.classList.remove("hidden");
+    div.innerHTML += `<br><button onclick="submit()">Отправить</button>`;
+
+    show("quiz");
 }
 
-function saveAnswer(i, val) {
-    answers[products[i]] = val;
+function save(i, val) {
+    answers[students[i]] = val;
 }
 
 function submit() {
-    if (!currentUser) return alert("Введите имя");
-    if (!window.db) return alert("Firebase не загрузился");
+    if (!currentUser) return alert("Сначала войдите!");
 
     push(ref(db, "results"), {
-        name: currentUser,
+        user: currentUser,
         answers: answers
     });
 
-    alert("Сохранено!");
+    alert("Отправлено!");
 }
 
-/* АДМИН */
-function adminLogin() {
-    let code = prompt("Введите код:");
-    if (code === "5267") {
-        hideAll();
-        showAdmin();
-    } else {
-        alert("Неверный код");
-    }
-}
-
-function showAdmin() {
-    const panel = document.getElementById("adminPanel");
-    const resultsDiv = document.getElementById("results");
-
-    resultsDiv.innerHTML = "<h3>Результаты:</h3>";
-
-    onValue(ref(db, "results"), (snapshot) => {
-        resultsDiv.innerHTML = "<h3>Результаты:</h3>";
-
-        snapshot.forEach((child) => {
-            const user = child.val();
-
-            resultsDiv.innerHTML += `<div><b>${user.name}</b><br>`;
-            for (let key in user.answers) {
-                resultsDiv.innerHTML += `${key}: ${user.answers[key]}<br>`;
-            }
-            resultsDiv.innerHTML += `<hr></div>`;
-        });
-    });
-
-    panel.classList.remove("hidden");
-}
-
-function deleteUser(i) {
-    let data = JSON.parse(localStorage.getItem("results"));
-    data.splice(i,1);
-    localStorage.setItem("results", JSON.stringify(data));
-    showAdmin();
-}
-
-function saveList() {
-    let newList = document.getElementById("editList").value.split("\n");
-    products = newList;
-    localStorage.setItem("products", JSON.stringify(products));
-    alert("Список обновлён!");
+/* ===== ЧАТ (пока заглушка) ===== */
+function openChat() {
+    alert("Чат пока не сделан 😄");
 }
 </script>
+
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBcbMg9i3KZfWzNUBe5DHwR4lCH4ySC9q8",
@@ -276,18 +158,14 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
 
-// авто-вход (простая регистрация)
-signInAnonymously(auth);
-
-// делаем доступ глобальным
-window.db = db;
+window.db = getDatabase(app);
+window.auth = getAuth(app);
 window.ref = ref;
 window.push = push;
-window.set = set;
-window.onValue = onValue;
+window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 </script>
+
 </body>
 </html>
