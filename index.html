@@ -4,29 +4,66 @@
 <meta charset="UTF-8">
 <title>Оценка одноклассников</title>
 
+<!-- ПИКСЕЛЬНЫЙ ШРИФТ -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 <style>
 body {
-    font-family: Arial;
+    margin: 0;
     background: #67d6c4;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* экран */
+.screen {
+    margin-top: 60px;
+}
+
+/* заголовок */
+.title {
+    font-size: 28px;
+    margin-bottom: 50px;
+}
+
+/* строки */
+.inputBox {
+    margin: 25px;
+    font-size: 12px;
+}
+
+.inputBox span {
+    display: inline-block;
+    width: 200px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+/* поля */
+input {
+    width: 260px;
+    height: 40px;
+    border: 4px solid black;
+    background: #67d6c4;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
     text-align: center;
 }
 
-.container {
-    margin-top: 50px;
-}
-
-input {
-    padding: 10px;
-    margin: 10px;
-    border: 2px solid black;
-}
-
-button {
-    padding: 15px 30px;
-    font-size: 18px;
+/* кнопка */
+.mainBtn {
+    margin-top: 40px;
+    padding: 20px 60px;
+    font-size: 14px;
     background: #3e9c72;
-    border: none;
+    border: 4px solid black;
+    font-family: 'Press Start 2P', cursive;
     cursor: pointer;
+}
+
+/* hover */
+.mainBtn:hover {
+    background: #2e7c52;
 }
 
 .hidden {
@@ -34,32 +71,46 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <!-- РЕГИСТРАЦИЯ -->
-<div id="auth" class="container">
-    <h1>РЕГИСТРАЦИЯ</h1>
+<div id="auth" class="screen">
+    <h1 class="title">REGISTRATION</h1>
 
-    <input id="email" placeholder="Почта"><br>
-    <input id="password" type="password" placeholder="Пароль"><br>
+    <div class="inputBox">
+        <span>NAME:</span>
+        <input id="name">
+    </div>
 
-    <button onclick="register()">Создать аккаунт</button><br><br>
-    <button onclick="login()">Войти</button>
+    <div class="inputBox">
+        <span>SURNAME:</span>
+        <input id="surname">
+    </div>
+
+    <div class="inputBox">
+        <span>NICKNAME:</span>
+        <input id="nickname">
+    </div>
+
+    <div class="inputBox">
+        <span>PASSWORD:</span>
+        <input id="password" type="password">
+    </div>
+
+    <button class="mainBtn" onclick="register()">COMPLETE</button>
 </div>
 
 <!-- МЕНЮ -->
-<div id="menu" class="container hidden">
-    <h1>ОЦЕНКА ОДНОКЛАССНИКОВ</h1>
-
-    <button onclick="startQuiz()">Оценить одноклассников</button><br><br>
-    <button onclick="openChat()">Чат</button>
+<div id="menu" class="screen hidden">
+    <h1 class="title">ОЦЕНКА</h1>
+    <button class="mainBtn" onclick="startQuiz()">START</button>
 </div>
 
 <!-- КВИЗ -->
-<div id="quiz" class="container hidden"></div>
+<div id="quiz" class="screen hidden"></div>
 
 <script>
-
 let currentUser = "";
 let answers = {};
 
@@ -75,46 +126,36 @@ function show(id) {
     document.getElementById(id).classList.remove("hidden");
 }
 
-/* ===== РЕГИСТРАЦИЯ ===== */
-
+/* РЕГИСТРАЦИЯ */
 function register() {
-    const email = document.getElementById("email").value;
+    if (!window.auth) {
+        alert("Firebase не загрузился");
+        return;
+    }
+
+    const nickname = document.getElementById("nickname").value;
     const pass = document.getElementById("password").value;
 
     if (pass.length < 6) {
-        alert("Пароль должен быть минимум 6 символов");
+        alert("Пароль минимум 6 символов");
         return;
     }
+
+    const email = nickname + "@test.com";
 
     createUserWithEmailAndPassword(window.auth, email, pass)
     .then(() => {
         alert("Аккаунт создан!");
-        currentUser = email;
+        currentUser = nickname;
         show("menu");
     })
     .catch(e => alert(e.message));
 }
 
-function login() {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    if (!window.auth) {
-    alert("Firebase не загрузился");
-    return;
-    }
-    signInWithEmailAndPassword(window.auth, email, pass)
-    .then(() => {
-        alert("Вход выполнен!");
-        currentUser = email;
-        show("menu");
-    })
-    .catch(e => alert(e.message));
-}
-/* ===== КВИЗ ===== */
-
+/* КВИЗ */
 function startQuiz() {
     const div = document.getElementById("quiz");
-    div.innerHTML = "<h2>Оцените одноклассников</h2>";
+    div.innerHTML = "<h2>ОЦЕНИ</h2>";
 
     students.forEach((s, i) => {
         div.innerHTML += `
@@ -124,7 +165,7 @@ function startQuiz() {
         </div>`;
     });
 
-    div.innerHTML += `<br><button onclick="submit()">Отправить</button>`;
+    div.innerHTML += `<br><button class="mainBtn" onclick="submit()">SEND</button>`;
 
     show("quiz");
 }
@@ -135,22 +176,16 @@ function save(i, val) {
 
 function submit() {
     if (!window.db) {
-    alert("Firebase не загрузился");
-    return;
+        alert("Firebase не подключен");
+        return;
     }
-    if (!currentUser) return alert("Сначала войдите!");
 
-    push(ref(window.db, "results"), {
+    push(ref(db, "results"), {
         user: currentUser,
         answers: answers
     });
 
     alert("Отправлено!");
-}
-
-/* ===== ЧАТ (пока заглушка) ===== */
-function openChat() {
-    alert("Чат пока не сделан 😄");
 }
 </script>
 
@@ -158,7 +193,7 @@ function openChat() {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+import { getAuth, createUserWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -175,7 +210,6 @@ window.auth = getAuth(app);
 window.ref = ref;
 window.push = push;
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 </script>
 
 </body>
