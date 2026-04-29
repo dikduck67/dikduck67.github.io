@@ -78,6 +78,10 @@ function show(id) {
 /* ===== РЕГИСТРАЦИЯ ===== */
 
 function register() {
+    if (!window.db) {
+    alert("Firebase не загрузился");
+    return;
+    }
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
@@ -127,6 +131,10 @@ function save(i, val) {
 }
 
 function submit() {
+    if (!window.db) {
+    alert("Firebase не загрузился");
+    return;
+    }
     if (!currentUser) return alert("Сначала войдите!");
 
     push(ref(db, "results"), {
