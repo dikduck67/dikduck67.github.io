@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Мат бои — отбор в команду</title>
+    <!-- Подключаем Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
     <style>
         /* 1. Сброс и фон */
         * {
@@ -185,6 +190,18 @@
             text-align: center;
         }
 
+        /* Стиль для сообщения об ошибке */
+        .error-message {
+            color: #ff7a7a;
+            background: rgba(255, 0, 0, 0.15);
+            border: 1px solid #ff4a4a;
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+        }
+
         /* 5. Адаптив для маленьких экранов */
         @media (max-width: 550px) {
             .card {
@@ -227,7 +244,7 @@
 
         <!-- ===== ФОРМА РЕГИСТРАЦИИ ===== -->
         <div id="registrationForm" class="registration-form">
-            <form id="registerForm" action="#" method="POST">
+            <form id="registerForm">
                 <!-- Имя и Фамилия в одном ряду -->
                 <div class="form-row">
                     <div class="field-group">
@@ -240,52 +257,103 @@
                     </div>
                 </div>
 
-               
-                
-                
+                <!-- Контейнер для сообщений об ошибках -->
+                <div id="formError" class="error-message"></div>
 
                 <!-- Кнопка отправки -->
-                <button type="submit" class="btn-submit">Зарегистрироваться и начать</button>
+                <button type="submit" class="btn-submit" id="submitBtn">Зарегистрироваться и начать</button>
 
                 <div class="form-note">
                     * — обязательные поля. После регистрации вы перейдёте к первому туру.
                 </div>
             </form>
         </div>
-        
 
     </div>
 
-    <!-- ===== НЕБОЛЬШОЙ JS, ЧТОБЫ ПОКАЗАТЬ ФОРМУ ===== -->
     <script>
         (function() {
+            // ===================================================================
+            // 1. НАСТРОЙКА FIREBASE (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ)
+            // ===================================================================
+            const firebaseConfig = {
+                apiKey: "AIzaSyBcbMg9i3KZfWzNUBe5DHwR4lCH4ySC9q8",
+                authDomain: "math-site-36482.firebaseapp.com",
+                projectId: "your-project-id",
+                projectId: "math-site-36482",
+                messagingSenderId: "543294005528",
+                appId: "1:543294005528:web:bb2693c5445617e2b2fe6d",
+            };
+
+            // Инициализация Firebase
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+
+            // ===================================================================
+            // 2. ПОКАЗАТЬ ФОРМУ ПО КЛИКУ НА "Начать"
+            // ===================================================================
             const btn = document.getElementById('showRegistrationBtn');
             const formContainer = document.getElementById('registrationForm');
 
-            // По клику на "Начать" показываем форму и скрываем кнопку (опционально)
             btn.addEventListener('click', function(e) {
-                e.preventDefault(); // чтобы не было скачка страницы
-
-                // Показываем форму
+                e.preventDefault();
                 formContainer.classList.add('active');
-
-                // (Опционально) скрываем кнопку, чтобы освободить место
                 btn.style.display = 'none';
-
-                // Прокручиваем к форме, если она не видна полностью
                 formContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
 
-            // Дополнительно: обработчик отправки формы (пока просто alert)
+            // ===================================================================
+            // 3. ОТПРАВКА ДАННЫХ В FIREBASE
+            // ===================================================================
             const form = document.getElementById('registerForm');
-            form.addEventListener('submit', function(e) {
+            const errorDiv = document.getElementById('formError');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Здесь можно собрать данные и отправить на сервер,
-                // либо перенаправить на страницу с турами.
-                // Сейчас просто покажем сообщение.
-                alert('🎉 Регистрация завершена! Вы будете перенаправлены на первый тур.');
-                // Пример: window.location.href = 'tour1.html';
+                // Скрываем предыдущие ошибки
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+
+                // Собираем данные
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+
+                // Простейшая валидация
+                if (!firstName || !lastName) {
+                    errorDiv.textContent = 'Пожалуйста, заполните все обязательные поля.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                // Блокируем кнопку, чтобы избежать повторных отправок
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+
+                try {
+                    // Сохраняем пользователя в коллекции "users"
+                    const docRef = await db.collection('users').add({
+                        firstName: firstName,
+                        lastName: lastName,
+                        registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    console.log('✅ Пользователь добавлен с ID:', docRef.id);
+
+                    // Успех — можно переходить к турам
+                    alert(' Регистрация завершена! Вы будете перенаправлены на первый тур.');
+                    // window.location.href = 'tour1.html';
+
+                } catch (error) {
+                    console.error(' Ошибка при отправке в Firebase:', error);
+                    errorDiv.textContent = 'Произошла ошибка при регистрации. Попробуйте ещё раз.';
+                    errorDiv.style.display = 'block';
+                } finally {
+                    // Разблокируем кнопку
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Зарегистрироваться и начать';
+                }
             });
 
         })();
