@@ -1,274 +1,295 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Оценка одноклассников</title>
+    <meta charset="UTF-8" />
+    <title>Мат бои — отбор в команду</title>
+    <style>
+        /* 1. Сброс и фон */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: url('фон_сайт2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
 
-<style>
-body {
-    margin: 0;
-    background: #67d6c4;
-    font-family: 'Press Start 2P', cursive;
-}
+        /* 2. Белая карточка-контейнер */
+        .card {
+            max-width: 820px;
+            width: 90%;
+            padding: 40px 30px;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 28px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
 
-/* ОБЩИЙ КОНТЕЙНЕР */
-#grid {
-    max-height: 400px;
-    overflow-y: auto;
-    border: 4px solid black;
-    padding: 10px;
-}
+        /* 3. Заголовки */
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 18px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+            letter-spacing: 0.5px;
+        }
 
-.row {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    align-items: center;
-}
+        h3 {
+            font-weight: 400;
+            line-height: 1.6;
+            font-size: 1.2rem;
+            margin-bottom: 28px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        }
 
-.row span {
-    font-size: 10px;
-}
-.screen {
-    width: 600px;
-    margin: 60px auto;
-    padding: 40px;
-    border: 6px solid black;
-    background: #67d6c4;
-    position: relative;
-}
+        /* 4. Кнопка "Начать" */
+        .btn-start {
+            display: inline-block;
+            padding: 14px 48px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            background: #1e6ef0;
+            border: 3px solid #7bb3ff;
+            border-radius: 60px;
+            text-decoration: none;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 0 #0b3b8a, 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: 0.07s ease;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
 
-/* ЗАГОЛОВОК */
-.title {
-    font-size: 22px;
-    margin-bottom: 40px;
-    text-align: center;
-}
+        .btn-start:hover {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0b3b8a, 0 10px 24px rgba(0, 0, 0, 0.5);
+            background: #3a82ff;
+        }
 
-/* ИНПУТЫ */
-.inputBox {
-    margin: 20px 0;
-    text-align: center;
-}
+        .btn-start:active {
+            transform: translateY(8px);
+            box-shadow: 0 0px 0 #0b3b8a, 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
 
-input {
-    width: 300px;
-    height: 40px;
-    border: 4px solid black;
-    background: #67d6c4;
-    font-family: 'Press Start 2P', cursive;
-    text-align: center;
-}
+        /* ===== Стили для формы регистрации ===== */
+        .registration-form {
+            display: none;
+            /* скрыта по умолчанию */
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.25);
+            text-align: left;
+        }
 
-/* КНОПКИ */
-.mainBtn {
-    margin-top: 20px;
-    padding: 15px 40px;
-    font-size: 14px;
-    background: #3e9c72;
-    border: 4px solid black;
-    cursor: pointer;
-}
+        .registration-form.active {
+            display: block;
+            /* показываем, когда есть класс active */;
+        }
 
-.mainBtn:hover {
-    background: #2e7c52;
-}
+        .registration-form label {
+            display: block;
+            margin-top: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #d0e0ff;
+        }
 
-/* КНОПКА ПРОФИЛЯ */
-.profileBtn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 50px;
-    height: 50px;
-    border: 4px solid black;
-    background: #3e9c72;
-    cursor: pointer;
-}
+        .registration-form input,
+        .registration-form select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-top: 6px;
+            border-radius: 12px;
+            border: 2px solid #3a6bb0;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(2px);
+            color: #fff;
+            font-size: 1rem;
+            transition: 0.2s;
+            outline: none;
+        }
 
-/* ОКНО ПРОФИЛЯ */
-.profileBox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #67d6c4;
-    border: 6px solid black;
-    padding: 30px;
-    width: 300px;
-    text-align: center;
-}
+        .registration-form input:focus,
+        .registration-form select:focus {
+            border-color: #7bb3ff;
+            background: rgba(255, 255, 255, 0.20);
+            box-shadow: 0 0 0 4px rgba(30, 110, 240, 0.3);
+        }
 
-.hidden {
-    display: none;
-}
-</style>
+        .registration-form input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .registration-form select option {
+            background: #1a1f2e;
+            color: #fff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .field-group {
+            flex: 1 1 180px;
+        }
+
+        .btn-submit {
+            display: inline-block;
+            margin-top: 28px;
+            padding: 14px 44px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            background: #1e9b3a;
+            border: 3px solid #7bda9e;
+            border-radius: 60px;
+            text-decoration: none;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 0 #0f6b24, 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: 0.07s ease;
+            cursor: pointer;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0f6b24, 0 10px 24px rgba(0, 0, 0, 0.5);
+            background: #2ebd50;
+        }
+
+        .btn-submit:active {
+            transform: translateY(8px);
+            box-shadow: 0 0px 0 #0f6b24, 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* маленький текст под формой */
+        .form-note {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+        }
+
+        /* 5. Адаптив для маленьких экранов */
+        @media (max-width: 550px) {
+            .card {
+                padding: 28px 16px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h3 {
+                font-size: 1rem;
+            }
+            .btn-start {
+                padding: 12px 32px;
+                font-size: 1.3rem;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- АВТОРИЗАЦИЯ -->
-<div id="auth" class="screen">
-    <h1 class="title">LOGIN</h1>
+    <div class="card">
+        <h1>Хочешь в первую команду на матбоях?</h1>
 
-    <div class="inputBox">
-        <input id="nickname" placeholder="NICKNAME">
+        <h3>
+            Тебе будет предложено 3 тура задач, в каждом туре по 3 задачи на разные темы
+            (логика, комбинаторика, алгебра).<br />
+            На всё будет дано 2 часа. Решения надо будет писать, как на матбоях,
+            а потом отвечать на вопросы также.<br /><br />
+            За каждое решение дадут от 0 до 12 баллов, и умножат на коэффициент тура:
+            у первого тура это 1, у второго — 2, у третьего — 3.<br /><br />
+            <strong>Вы готовы? Тогда начинайте!</strong>
+        </h3>
+
+        <!-- Кнопка "Начать" (открывает форму регистрации) -->
+        <button id="showRegistrationBtn" class="btn-start">Начать</button>
+
+        <!-- ===== ФОРМА РЕГИСТРАЦИИ ===== -->
+        <div id="registrationForm" class="registration-form">
+            <form id="registerForm" action="#" method="POST">
+                <!-- Имя и Фамилия в одном ряду -->
+                <div class="form-row">
+                    <div class="field-group">
+                        <label for="firstName">Имя *</label>
+                        <input type="text" id="firstName" placeholder="Алексей" required />
+                    </div>
+                    <div class="field-group">
+                        <label for="lastName">Фамилия *</label>
+                        <input type="text" id="lastName" placeholder="Смирнов" required />
+                    </div>
+                </div>
+
+               
+                
+                
+
+                <!-- Кнопка отправки -->
+                <button type="submit" class="btn-submit">Зарегистрироваться и начать</button>
+
+                <div class="form-note">
+                    * — обязательные поля. После регистрации вы перейдёте к первому туру.
+                </div>
+            </form>
+        </div>
+        
+
     </div>
 
-    <div class="inputBox">
-        <input id="password" type="password" placeholder="PASSWORD">
-    </div>
+    <!-- ===== НЕБОЛЬШОЙ JS, ЧТОБЫ ПОКАЗАТЬ ФОРМУ ===== -->
+    <script>
+        (function() {
+            const btn = document.getElementById('showRegistrationBtn');
+            const formContainer = document.getElementById('registrationForm');
 
-    <button class="mainBtn" onclick="register()">REGISTER</button><br>
-    <button class="mainBtn" onclick="login()">LOGIN</button>
-</div>
+            // По клику на "Начать" показываем форму и скрываем кнопку (опционально)
+            btn.addEventListener('click', function(e) {
+                e.preventDefault(); // чтобы не было скачка страницы
 
-<!-- МЕНЮ -->
-<div id="menu" class="screen hidden">
-    <button class="profileBtn" onclick="openProfile()">👤</button>
+                // Показываем форму
+                formContainer.classList.add('active');
 
-    <h1 class="title">MENU</h1>
+                // (Опционально) скрываем кнопку, чтобы освободить место
+                btn.style.display = 'none';
 
-    <button class="mainBtn" onclick="startQuiz()">START</button>
-</div>
+                // Прокручиваем к форме, если она не видна полностью
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
 
-<!-- ПРОФИЛЬ -->
-<div id="profile" class="profileBox hidden">
-    <h2>PROFILE</h2>
-    <p id="profileName"></p>
-    <button class="mainBtn" onclick="closeProfile()">CLOSE</button>
-</div>
+            // Дополнительно: обработчик отправки формы (пока просто alert)
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-<!-- КВИЗ -->
-<div id="quiz" class="screen hidden"></div>
+                // Здесь можно собрать данные и отправить на сервер,
+                // либо перенаправить на страницу с турами.
+                // Сейчас просто покажем сообщение.
+                alert('🎉 Регистрация завершена! Вы будете перенаправлены на первый тур.');
+                // Пример: window.location.href = 'tour1.html';
+            });
 
-<script>
-let currentUser = "";
-let answers = {};
-
-let students = [
-"Мирослав","Ассовская","Грико","Гуща","Никола","Аня Д.","Артём", "Гриша","Серёжа","Максим","Иванова","Илья","Мирон","Косачёв", "Миша","Лебедев","Алекс","Мирошников","Аня М.","Андрей", "Полина","Лёша","Ира","Кира","Хмелёв","Саша","Щербаков"
-];
-
-function show(id) {
-    document.getElementById("auth").classList.add("hidden");
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("quiz").classList.add("hidden");
-
-    document.getElementById(id).classList.remove("hidden");
-}
-
-/* ПРОФИЛЬ */
-function openProfile() {
-    document.getElementById("profile").classList.remove("hidden");
-    document.getElementById("profileName").innerText = "USER: " + currentUser;
-}
-
-function closeProfile() {
-    document.getElementById("profile").classList.add("hidden");
-}
-
-/* РЕГИСТРАЦИЯ */
-function register() {
-    const nickname = document.getElementById("nickname").value;
-    const pass = document.getElementById("password").value;
-
-    if (pass.length < 6) return alert("Минимум 6 символов");
-
-    const email = nickname + "@test.com";
-
-    createUserWithEmailAndPassword(window.auth, email, pass)
-    .then(() => {
-        currentUser = nickname;
-        show("menu");
-    })
-    .catch(e => alert(e.message));
-}
-
-/* ВХОД */
-function login() {
-    const nickname = document.getElementById("nickname").value;
-    const pass = document.getElementById("password").value;
-
-    const email = nickname + "@test.com";
-
-    signInWithEmailAndPassword(window.auth, email, pass)
-    .then(() => {
-        currentUser = nickname;
-        show("menu");
-    })
-    .catch(e => alert(e.message));
-}
-
-/* КВИЗ */
-function startQuiz() {
-    const div = document.getElementById("quiz");
-
-    div.innerHTML = `
-    <h2>RATE</h2>
-    <div id="grid"></div>
-    <br>
-    <button class="mainBtn" onclick="submit()">SEND</button>
-    `;
-
-    const grid = document.getElementById("grid");
-
-    students.forEach((s, i) => {
-        grid.innerHTML += `
-        <div class="row">
-            <span>${s}</span>
-            <input type="number" min="0" max="10" onchange="save(${i}, this.value)">
-        </div>`;
-    });
-
-    show("quiz");
-}
-function save(i, val) {
-    answers[students[i]] = val;
-}
-
-ffunction submit() {
-    if (!window.db) return alert("Firebase не подключен");
-
-    push(ref(window.db, "results"), {
-        user: currentUser,
-        answers: answers
-    });
-
-    alert("Отправлено!");
-
-    // очистка ответов
-    answers = {};
-
-    // возврат в меню
-    show("menu");
-}
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyBcbMg9i3KZfWzNUBe5DHwR4lCH4ySC9q8",
-    authDomain: "math-site-36482.firebaseapp.com",
-    databaseURL: "https://math-site-36482-default-rtdb.firebaseio.com",
-    projectId: "math-site-36482",
-};
-
-const app = initializeApp(firebaseConfig);
-
-window.db = getDatabase(app);
-window.auth = getAuth(app);
-window.ref = ref;
-window.push = push;
-window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-</script>
+        })();
+    </script>
 
 </body>
 </html>
